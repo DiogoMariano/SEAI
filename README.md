@@ -1,0 +1,2 @@
+# SEAI
+Equipa Software
