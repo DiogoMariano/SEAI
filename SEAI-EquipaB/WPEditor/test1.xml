@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph name="">
+  <nodes>
+    <node id="00000001" name="" c_level="1" u="215" v="360" angle="0"/>
+    <node id="00000002" name="" c_level="1" u="412" v="361" angle="0"/>
+    <node id="00000004" name="" c_level="1" u="539" v="400" angle="0"/>
+    <node id="00000006" name="" c_level="1" u="526" v="533" angle="-1.79427292793553"/>
+    <node id="00000008" name="" c_level="1" u="355" v="566" angle="0"/>
+    <node id="0000000A" name="" c_level="1" u="123" v="532" angle="2.64224593190966"/>
+    <node id="0000000C" name="" c_level="1" u="168" v="475" angle="0.797743215241673"/>
+    <node id="0000000E" name="" c_level="1" u="292" v="339" angle="0.769526480405658"/>
+    <node id="00000010" name="" c_level="1" u="615" v="199" angle="-0.034469100999508"/>
+    <node id="00000012" name="" c_level="1" u="773" v="472" angle="-1.63627635171836"/>
+    <node id="00000014" name="" c_level="1" u="677" v="557" angle="-3.10712355259029"/>
+    <node id="00000016" name="" c_level="1" u="568" v="618" angle="-2.58993767106125"/>
+    <node id="00000018" name="" c_level="1" u="469" v="637" angle="0.329624407420743"/>
+    <node id="0000001A" name="" c_level="1" u="369" v="663" angle="-2.97644397617517"/>
+    <node id="0000001C" name="" c_level="1" u="272" v="679" angle="2.41495031290807"/>
+    <node id="0000001E" name="" c_level="1" u="410" v="142" angle="-0.855052737126016"/>
+  </nodes>
+  <links>
+    <link id="00000001" name="" node_start="00000001" node_stop="00000002" c1_u="280.6666565" c1_v="360" c2_u="346.3333435" c2_v="361"/>
+    <link id="00000002" name="" node_start="00000002" node_stop="00000004" c1_u="455.4229736" c1_v="361" c2_u="496.6666565" c2_v="390.3333435"/>
+    <link id="00000004" name="" node_start="00000004" node_stop="00000006" c1_u="577.8673706" c1_v="408.8752441" c2_u="534.8355713" c2_v="494.1235657"/>
+    <link id="00000006" name="" node_start="00000006" node_stop="00000008" c1_u="516" c1_v="577" c2_u="398.6666565" c2_v="555"/>
+    <link id="00000008" name="" node_start="00000008" node_stop="0000000A" c1_u="278.3816833" c1_v="585.3007812" c2_u="192.3642273" c2_v="569.835022"/>
+    <link id="0000001E" name="" node_start="0000000A" node_stop="0000000C" c1_u="101" c1_v="520" c2_u="152.7679291" c2_v="490.6128845"/>
+    <link id="0000001E" name="" node_start="0000000C" node_stop="0000000E" c1_u="208" c1_v="434" c2_u="250.2431183" c2_v="379.4519958"/>
+    <link id="0000001E" name="" node_start="0000000E" node_stop="00000010" c1_u="324" c1_v="308" c2_u="559.9509888" c2_v="197.1017609"/>
+    <link id="0000000A" name="" node_start="00000010" node_stop="00000012" c1_u="673" c1_v="201" c2_u="776.4031372" c2_v="420.1018372"/>
+    <link id="0000000C" name="" node_start="00000012" node_stop="00000014" c1_u="769" c1_v="533" c2_u="724.0147095" c2_v="555.3787842"/>
+    <link id="0000000E" name="" node_start="00000014" node_stop="00000016" c1_u="619" c1_v="559" c2_u="591.9358521" c2_v="603.2702637"/>
+    <link id="00000010" name="" node_start="00000016" node_stop="00000018" c1_u="542" c1_v="634" c2_u="507" c2_v="624"/>
+    <link id="00000012" name="" node_start="00000018" node_stop="0000001A" c1_u="443.5140381" c1_v="645.7188721" c2_u="395.5696106" c2_v="658.5717163"/>
+    <link id="0000001E" name="" node_start="0000001A" node_stop="0000001C" c1_u="339" c1_v="668" c2_u="305.840332" c2_v="709.0802612"/>
+    <link id="0000001E" name="" node_start="0000001C" node_stop="0000001E" c1_u="227" c1_v="639" c2_u="430" c2_v="165"/>
+    <link id="0000001E" name="" node_start="00000014" node_stop="00000006" c1_u="626.0651245" c1_v="558.7563477" c2_u="537.2949219" c2_v="483.3022156"/>
+    <link id="00000020" name="" node_start="00000010" node_stop="00000004" c1_u="686.5869141" c1_v="201.4685211" c2_u="467.3705444" c2_v="400"/>
+  </links>
+</graph>

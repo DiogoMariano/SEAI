@@ -1,0 +1,7 @@
+C:\Dropbox\FEUP\FState\WPEditor\WPEditor.exe 
+Heap dump by heaptrc unit
+54686 memory blocks allocated : 19112810/19179016
+54686 memory blocks freed     : 19112810/19179016
+0 unfreed memory blocks : 0
+True heap size : 393216 (112 used in System startup)
+True free heap : 393104
