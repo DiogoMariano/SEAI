@@ -51,156 +51,218 @@ bool info_file(string adr){
 	bool resp;
 
 	if(exists(adr)){
-		cout << "O ficheiro já existe deseja deseja continuar?" << '\n' << "!Atenção que se tencionar escrever o ficheiro será totalmente apagado primeiro" << endl;
+		cout << "O ficheiro existe. Deseja continuar?" << '\n' << endl;
 		cout << "não -> 0" << '\n' << "sim -> 1" << endl;
 		cin >> resp;
 		return resp;
 	}
 	else{
-		cout << "O ficheiro não existe deseja criar e editar?" << endl;
-		cout << "não -> 0" << '\n' << "sim -> 1" << endl;
-		cin >> resp;
-		return resp;
+		cout << "O ficheiro não existe" << endl;
 	}
 
+	return resp;
 
 }
 
-/*Class de Path importante para a leitura do trajeto */
-class Path{
-	public:
-		std::string type; //Line or circle
-		int number; //Identificação do path
-		int x_f, y_f; //destino
+/*Class de Node_xml importante para a leitura do trajeto */
+class Node_xml{
+	private:
+		string id; //id do Node_xml
+		double u, v, angle; //coordenadas do Node_xml e o angulo
 
-		Path(int number, int x_f, int y_f, std::string type){
-			this->number=number;
-			this->type=type;
-			this->x_f=x_f;
-			this->y_f=y_f;
+	public:
+		Node_xml(string id, double u, double v, double angle){
+			this->id=id;
+			this->u=u;
+			this->v=v;
+			this->angle=angle;
+		}
+
+		string Getid(){
+			return this->id;
+		}
+		double Getu(){
+			return this->u;
+		}
+		double Getv(){
+			return this->v;
+		}
+		double Getangle(){
+			return this->angle;
 		}
 };
 
-void showTheContent(list<Path> trajecto)
+class Link_xml{
+	private:
+		string n_start, n_stop;
+		double c1_u, c1_v;
+		double c2_u, c2_v;
+
+	public:
+		Link_xml(string n_start, string n_stop, double c1_u, double c1_v, double c2_u, double c2_v){
+			this->n_start=n_start;
+			this->n_stop=n_stop;
+			this->c1_u=c1_u;
+			this->c1_v=c1_v;
+			this->c2_u=c2_u;
+			this->c2_v=c2_v;
+		}
+
+		string GetStart(){
+			return this->n_start;
+		}
+		string GetStop(){
+			return this->n_stop;
+		}
+		double getC1U(){
+			return this->c1_u;
+		}
+		double getC1V(){
+			return this->c1_v;
+		}
+		double getC2U(){
+			return this->c2_u;
+		}
+		double getC2V(){
+			return this->c2_v;
+		}
+};
+
+void writelist(list<Node_xml> Nodes, list<Link_xml> Links){
+	for(Node_xml & node : Nodes){
+		cout<<node.Getid()<<endl;
+	}
+	for(Link_xml & link : Links){
+		cout<<link.GetStart()<<endl;
+	}
+}
+
+
+void OrganizeTrajectory(list<Node_xml> Nodes, list<Link_xml> Links)
 {
-     list<Path>::iterator it = trajecto.begin();
-      while(it!=trajecto.end()){
-    	  cout << it->number << "+" << it->type << "+" << it->x_f << "+" << it->y_f << endl;
-    	  it++;
+	//list<Path> trajectory;
+
+     for ( Link_xml & Link_xml : Links) {
+         for ( Node_xml & node1 : Nodes) {
+        	 if(!((Link_xml.GetStart()).compare(node1.Getid()))){
+        		 for( Node_xml & node2: Nodes){
+        			 if(!(Link_xml.GetStop().compare(node2.Getid()))){
+        				 cout << node1.Getangle();
+        			 }
+        		 }
+        	 }
+         }
       }
+
+      /*while(it!=Links.end()){
+    	  while(it2!=Nodes.end()){
+    		  if(!(it->GetStart().compare(it2->Getid()))){
+    			  while(it3!=Nodes.end()){
+    				  if(!(it->GetStop().compare(it2->Getid()))){
+    					  Path path(*it2, *it3, *it);
+    					  trajectory.push_back(path);
+    				  }
+    				  it3++;
+    			  }
+    		  }
+    		  it2++;
+    	  }
+    	  it++;
+      }*/
+
+     /* list<Path>::iterator it4 = trajectory.begin();
+      while(it4!=trajectory.end()){
+    	  cout << it4->GetStart() << " " << it4->GetStop() << endl;
+    	  it4++;
+      }*/
 }
 
 
 void read_xml(string adr){
 
 		CMarkup xml;
-		list<Path> trajecto;
+
+		list<Node_xml> Nodes;
+		list<Link_xml> Links;
+
 		xml.Load(adr);
 
-		int number=0, x_f=0, y_f=0;
-		string type ="", str_aux="";
+		double u=0, v=0, angle=0, c1_u = 0, c1_v = 0, c2_u = 0, c2_v = 0 ;
+		string name = "", str_aux = "", id = "", n_start = "", n_stop = "";
 
 		xml.ResetPos(); //Reposicionamento
 		//xml.FindElem("Path");
-		while(xml.FindElem("Path")){
+		while(xml.FindElem("graph")){
+			xml.IntoElem(); //Entrar no graph
+			name = xml.GetAttrib("name");
+			cout<<name<<endl;
+
+			xml.FindElem("nodes"); //find the element of the nodes
+			xml.IntoElem(); //Enter in the Node_xml department
+				while(xml.FindElem("node")){
+
+					id = xml.GetAttrib("id"); //tirar o id
+					//cout << id <<endl;
 
 
-			str_aux = xml.GetAttrib("number");
-			number = stoi(str_aux);
-			xml.IntoElem(); //Entra no Path
+					str_aux = xml.GetAttrib("u"); //tirar a coordenada u
+					u = stod(str_aux);
+					//cout<<u<<endl;
 
+					str_aux = xml.GetAttrib("v"); //tirar a coordenada v
+					v = stod(str_aux);
+					//cout<<v<<endl;
 
-			xml.FindElem("type"); //Number type
-			type = xml.GetData();
-			//cout << type << endl;
+					str_aux = xml.GetAttrib("angle"); //tirar a coordenada u
+					angle = stod(str_aux);
+					//cout<<angle<<endl;
 
-			xml.FindElem("to_x"); //Number data
-			str_aux = xml.GetData();
-			x_f = stoi(str_aux);
-			//cout << x_f << endl;
+					Node_xml Node_xml(id, u, v, angle);
+					Nodes.push_back(Node_xml);
+				}
+			xml.OutOfElem(); //exist Node_xml department
 
-			xml.FindElem("to_y"); //Number data
-			str_aux = xml.GetData();
-			y_f = stoi(str_aux);
-			//cout << y_f << endl;
+			xml.FindElem("links"); //find the element of the links
+			xml.IntoElem(); //Enter in the Link_xml department
+				while(xml.FindElem("link")){
 
-			xml.OutOfElem();
+					n_start = xml.GetAttrib("node_start"); //tirar o Node_xml de partida
+					//cout<<n_start<<endl;
 
-			Path path(number, x_f, y_f, type);
-			trajecto.push_back(path);
+					n_stop = xml.GetAttrib("node_stop"); //tirar o Node_xml de chegada
+					//cout<<n_stop<<endl;
+
+					str_aux = xml.GetAttrib("c1_u");
+					c1_u = stod(str_aux);
+					//cout<<c1_u<<endl;
+
+					str_aux = xml.GetAttrib("c1_v");
+					c1_v = stod(str_aux);
+					//cout<<c1_v<<endl;
+
+					str_aux = xml.GetAttrib("c2_u");
+					c2_u = stod(str_aux);
+					//cout<<c2_u<<endl;
+
+					str_aux = xml.GetAttrib("c2_v");
+					c2_v = stod(str_aux);
+					//cout<<c2_v<<endl;
+
+					Link_xml Link_xml(n_start, n_stop, c1_u, c1_v, c2_u, c2_v);
+					Links.push_back(Link_xml);
+				}
+			xml.OutOfElem(); //exist links department
 		}
 
-		showTheContent(trajecto);
+		xml.OutOfElem(); //exist links department
+
+	writelist(Nodes, Links);
 
 }
 
-void write_xml(string adr){
-	bool resp;
-	string type;
-	int x_f, y_f, number = 0;
+void render_xml(string adr){
 
-	CMarkup xml;
-
-	while(1){
-
-		if(sub_state == 0){
-			cout << "------XML writer------" << endl;
-			cout << "1 -> Add Path" << endl;
-			cout << "3 -> Quit" << endl;
-			cin >> sub_state;
-
-		}
-
-		else if(sub_state == 1){
-
-
-			cout << "Coordenadas finais X: ";
-			cin >> x_f;
-			cout << "Coordenadas finais Y: ";
-			cin >> y_f;
-			cout << "tipo de trajetoria: ";
-			cin >> type;
-
-			cout << type << ", " << "X = " << x_f << "Y = " << y_f << endl;
-			cout << "1-confirmação" << '\n' << "0-cancelamento" << endl;
-			cin >> resp;
-
-			if(resp){
-				sub_state = 2;
-			}
-			else{
-				type.clear();
-				x_f = 0;
-				y_f = 0;
-				sub_state = 0;
-			}
-		}
-
-		else if(sub_state==2){
-
-			xml.AddElem( "Path" );
-			xml.SetAttrib( "number", number );
-			xml.IntoElem();
-			xml.AddElem( "type", type );
-			xml.AddElem( "to_x", x_f );
-			xml.AddElem( "to_y", y_f );
-			xml.OutOfElem();
-			/*acrescentar info para circle ou line*/
-			xml.Save(adr);
-
-			number++;
-			sub_state = 0;
-		}
-
-		else if(sub_state == 3){
-			state = 0;
-			sub_state = 0;
-			break;
-		}
-
-	}
 }
-
 
 
 
@@ -212,16 +274,17 @@ int main(){
 
 			adr.clear();
 			cout << "------XML parser interface------" << endl;
-			cout << "1 -> Write" << endl;
-			cout << "2 -> Read" << endl;
+			cout << "1 -> Read" << endl;
+			cout << "2 -> Render" << endl;
 			cout << "3 -> QUIT" << endl;
 			cin >> state;
 		}
 		else if(state==1){
 
-			adr = get_name();
+			adr = get_name(); //Get the address of the file
 			if(info_file(adr)){
-				write_xml(adr);
+				read_xml(adr);
+				state = 0;
 			}
 			else{
 				adr.clear();
@@ -233,7 +296,7 @@ int main(){
 
 			adr = get_name();
 			if(info_file(adr)){
-				read_xml(adr);
+				render_xml(adr);
 				state = 0;
 			}
 			else{
