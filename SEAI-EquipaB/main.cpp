@@ -128,53 +128,51 @@ class Link_xml{
 		}
 };
 
+class Path{
+	public:
+		Node_xml *start, *stop;
+		Link_xml *link_of_nodes;
+
+		Path(Node_xml *start, Node_xml *stop, Link_xml *link_of_nodes){
+			this->start = start;
+			this->stop = stop;
+			this->link_of_nodes = link_of_nodes;
+		}
+
+};
+
 void writelist(list<Node_xml> Nodes, list<Link_xml> Links){
 	for(Node_xml & node : Nodes){
-		cout<<node.Getid()<<endl;
+		cout<<&node<<endl;
 	}
 	for(Link_xml & link : Links){
-		cout<<link.GetStart()<<endl;
+		cout<<&link<<endl;
 	}
 }
 
 
 void OrganizeTrajectory(list<Node_xml> Nodes, list<Link_xml> Links)
 {
-	//list<Path> trajectory;
+	list<Path> trajectory;
 
-     for ( Link_xml & Link_xml : Links) {
+     for ( Link_xml & link : Links) {
          for ( Node_xml & node1 : Nodes) {
-        	 if(!((Link_xml.GetStart()).compare(node1.Getid()))){
+        	 if(!((link.GetStart()).compare(node1.Getid()))){
         		 for( Node_xml & node2: Nodes){
-        			 if(!(Link_xml.GetStop().compare(node2.Getid()))){
-        				 cout << node1.Getangle();
+        			 if(!(link.GetStop().compare(node2.Getid()))){
+        				 Path path(&node1, &node2, &link);
+        				 trajectory.push_back(path);
         			 }
         		 }
         	 }
          }
       }
 
-      /*while(it!=Links.end()){
-    	  while(it2!=Nodes.end()){
-    		  if(!(it->GetStart().compare(it2->Getid()))){
-    			  while(it3!=Nodes.end()){
-    				  if(!(it->GetStop().compare(it2->Getid()))){
-    					  Path path(*it2, *it3, *it);
-    					  trajectory.push_back(path);
-    				  }
-    				  it3++;
-    			  }
-    		  }
-    		  it2++;
-    	  }
-    	  it++;
-      }*/
+      for(Path & path : trajectory){
+    	  cout<<path.start->Getid()<<endl;
+    	  cout<<path.stop->Getid()<<endl;
 
-     /* list<Path>::iterator it4 = trajectory.begin();
-      while(it4!=trajectory.end()){
-    	  cout << it4->GetStart() << " " << it4->GetStop() << endl;
-    	  it4++;
-      }*/
+      }
 }
 
 
@@ -256,7 +254,7 @@ void read_xml(string adr){
 
 		xml.OutOfElem(); //exist links department
 
-	writelist(Nodes, Links);
+		OrganizeTrajectory(Nodes, Links);
 
 }
 
