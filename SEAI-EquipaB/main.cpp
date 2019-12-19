@@ -327,7 +327,7 @@ int main(){
 
 	//The window we'll be rendering to
 	SDL_Window* window = NULL;
-
+batatat
 	//The surface contained by the window
 	SDL_Surface* screenSurface = NULL;
 
