@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph name="">
+  <nodes>
+    <node id="0000003A" name="" c_level="1" u="945" v="60" angle="0.291456794477867"/>
+    <node id="0000003B" name="" c_level="1" u="1036" v="228" angle="-2.0391387369832"/>
+    <node id="0000003D" name="" c_level="1" u="744" v="301" angle="-1.59079366076805"/>
+  </nodes>
+  <links>
+    <link id="0000003C" name="" node_start="0000003A" node_stop="0000003B" c1_u="1045" c1_v="30" c2_u="1122" c2_v="58"/>
+    <link id="0000003E" name="" node_start="0000003D" node_stop="0000003B" c1_u="741" c1_v="451" c2_u="1081.289307" c2_v="138.4747314"/>
+  </links>
+</graph>
