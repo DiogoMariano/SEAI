@@ -3,6 +3,7 @@
 	<name>SEAI-EquipaB</name>
 	<comment></comment>
 	<projects>
+		<project>SEAI-EquipaB</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

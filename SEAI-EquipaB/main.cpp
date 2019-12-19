@@ -17,12 +17,21 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
+#include <math.h>
+#include <SDL2/SDL.h>
+
 
 using namespace std;
 
 static string ADR_XML =  "/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/XML_SCRIPTS/";//Endereço fixo dos cripts de xml
 
 int state = 0, sub_state=0;
+
+//Screen dimension constants
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
+
+
 
 /*Função
  *
@@ -58,6 +67,7 @@ bool info_file(string adr){
 	}
 	else{
 		cout << "O ficheiro não existe" << endl;
+		return false;
 	}
 
 	return resp;
@@ -129,15 +139,58 @@ class Link_xml{
 };
 
 class Path{
-	public:
+	private:
 		Node_xml *start, *stop;
 		Link_xml *link_of_nodes;
 
+	public:
 		Path(Node_xml *start, Node_xml *stop, Link_xml *link_of_nodes){
 			this->start = start;
 			this->stop = stop;
 			this->link_of_nodes = link_of_nodes;
 		}
+
+		double getUStart(){
+			return this->start->Getu();
+		}
+
+		double getVStart(){
+			return this->start->Getv();
+		}
+
+		double getAngStart(){
+			return this->start->Getangle();
+		}
+
+		double getUStop(){
+			return this->stop->Getu();
+		}
+
+		double getVStop(){
+			return this->stop->Getv();
+		}
+
+		double getAngStop(){
+			return this->stop->Getangle();
+		}
+
+		double getC1U(){
+			return this->link_of_nodes->getC1U();
+		}
+
+		double getC1V(){
+			return this->link_of_nodes->getC1V();
+		}
+
+		double getC2U(){
+			return this->link_of_nodes->getC2U();
+		}
+
+		double getC2V(){
+			return this->link_of_nodes->getC2V();
+		}
+
+
 
 };
 
@@ -151,37 +204,15 @@ void writelist(list<Node_xml> Nodes, list<Link_xml> Links){
 }
 
 
-void OrganizeTrajectory(list<Node_xml> Nodes, list<Link_xml> Links)
-{
-	list<Path> trajectory;
 
-     for ( Link_xml & link : Links) {
-         for ( Node_xml & node1 : Nodes) {
-        	 if(!((link.GetStart()).compare(node1.Getid()))){
-        		 for( Node_xml & node2: Nodes){
-        			 if(!(link.GetStop().compare(node2.Getid()))){
-        				 Path path(&node1, &node2, &link);
-        				 trajectory.push_back(path);
-        			 }
-        		 }
-        	 }
-         }
-      }
-
-      for(Path & path : trajectory){
-    	  cout<<path.start->Getid()<<endl;
-    	  cout<<path.stop->Getid()<<endl;
-
-      }
-}
-
-
-void read_xml(string adr){
+list<Path> read_xml(string adr){
 
 		CMarkup xml;
 
 		list<Node_xml> Nodes;
 		list<Link_xml> Links;
+
+		list<Path> trajectory;
 
 		xml.Load(adr);
 
@@ -254,11 +285,39 @@ void read_xml(string adr){
 
 		xml.OutOfElem(); //exist links department
 
-		OrganizeTrajectory(Nodes, Links);
+		for ( Link_xml & link : Links) {
+		         for ( Node_xml & node1 : Nodes) {
+		        	 if(!((link.GetStart()).compare(node1.Getid()))){
+		        		 for( Node_xml & node2: Nodes){
+		        			 if(!(link.GetStop().compare(node2.Getid()))){
+		        				 Path path(&node1, &node2, &link);
+		        				 trajectory.push_back(path);
+		        			 }
+		        		 }
+		        	 }
+		         }
+		      }
+
+		return trajectory;
 
 }
 
-void render_xml(string adr){
+void render_xml(list<Path> trajectory){
+
+	double t = 0.0, x = 0.0, y = 0.0;
+
+	for(Path & path : trajectory){
+
+		for(t = 0.0; t <= 1.0; t += 0.0001) {
+
+			x = pow(1-t,3)*path.getUStart() + 3*t*pow(1-t,2)*path.getC1U() + 3*pow(t,2)*(1-t)*path.getC2U() + pow(t,3)*path.getUStop();
+			y = pow(1-t,3)*path.getVStart() + 3*t*pow(1-t,2)*path.getC1V() + 3*pow(t,2)*(1-t)*path.getC2V() + pow(t,3)*path.getVStop();
+
+		}
+
+	}
+
+
 
 }
 
@@ -266,7 +325,15 @@ void render_xml(string adr){
 
 int main(){
 
+	//The window we'll be rendering to
+	SDL_Window* window = NULL;
+
+	//The surface contained by the window
+	SDL_Surface* screenSurface = NULL;
+
 	string adr = "";
+	list<Path> trajectory;
+	 window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 	while(1){
 		if(state==0){
 
@@ -281,7 +348,7 @@ int main(){
 
 			adr = get_name(); //Get the address of the file
 			if(info_file(adr)){
-				read_xml(adr);
+				trajectory=read_xml(adr);
 				state = 0;
 			}
 			else{
@@ -292,9 +359,8 @@ int main(){
 
 		else if(state == 2){
 
-			adr = get_name();
-			if(info_file(adr)){
-				render_xml(adr);
+			if(trajectory.size()!=0){
+				render_xml(trajectory);
 				state = 0;
 			}
 			else{
