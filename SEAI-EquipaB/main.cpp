@@ -159,11 +159,11 @@ class Path{
 		}
 
 		double getUStart(){
-			return this->start->Getu();
+			return this->start->Getu()/100;
 		}
 
 		double getVStart(){
-			return this->start->Getv();
+			return this->start->Getv()/100;
 		}
 
 		double getAngStart(){
@@ -338,18 +338,18 @@ void render_xml(list<Path> trajectory){
 						SDL_RenderDrawPoint(renderer , (int)x , (int)y) ;
 					}
 					/*Red Line between control Point P0 & P1*/
-					SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-					SDL_RenderDrawLine(renderer , path.getUStart() , path.getVStart() , path.getC1U(), path.getC1V()) ;
+					//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+					//SDL_RenderDrawLine(renderer , path.getUStart() , path.getVStart() , path.getC1U(), path.getC1V()) ;
 
 
 					/*Red Line between control Point P1 & P2*/
-					SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-					SDL_RenderDrawLine(renderer , path.getC1U(), path.getC1V(), path.getC2U(), path.getC2V()) ;
+					//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+					//SDL_RenderDrawLine(renderer , path.getC1U(), path.getC1V(), path.getC2U(), path.getC2V()) ;
 
 
 					/*Red Line between control Point P2 & P3*/
-					SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-					SDL_RenderDrawLine(renderer , path.getC2U(), path.getC2V() , path.getUStop() , path.getVStop()) ;
+					//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+					//SDL_RenderDrawLine(renderer , path.getC2U(), path.getC2V() , path.getUStop() , path.getVStop()) ;
 				}
 
 				if (SDL_PollEvent(&event)) {
