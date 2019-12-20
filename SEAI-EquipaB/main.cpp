@@ -23,13 +23,21 @@
 
 using namespace std;
 
+//The window we'll be rendering to
+	SDL_Window* window = NULL;
+
+//The surface contained by the window
+	SDL_Surface* screenSurface = NULL;
+
+	SDL_Renderer* renderer = NULL;
+
 static string ADR_XML =  "/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/XML_SCRIPTS/";//Endereço fixo dos cripts de xml
 
 int state = 0, sub_state=0;
 
 //Screen dimension constants
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 
 
@@ -306,34 +314,78 @@ void render_xml(list<Path> trajectory){
 
 	double t = 0.0, x = 0.0, y = 0.0;
 
-	for(Path & path : trajectory){
+	if(SDL_Init(SDL_INIT_EVERYTHING) == 0){
+		/*Initialization of SDL*/
+		if(SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer) == 0){
+			SDL_bool done = SDL_FALSE;
 
-		for(t = 0.0; t <= 1.0; t += 0.0001) {
+			while(!done){
+				SDL_Event event;
 
-			x = pow(1-t,3)*path.getUStart() + 3*t*pow(1-t,2)*path.getC1U() + 3*pow(t,2)*(1-t)*path.getC2U() + pow(t,3)*path.getUStop();
-			y = pow(1-t,3)*path.getVStart() + 3*t*pow(1-t,2)*path.getC1V() + 3*pow(t,2)*(1-t)*path.getC2V() + pow(t,3)*path.getVStop();
+				/*set background color to black*/
+				SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+				SDL_RenderClear(renderer);
 
+				/*set draw color to white*/
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+
+				for(Path & path : trajectory){
+
+					for(t = 0.0; t <= 1.0; t += 0.0001) {
+
+						x = pow(1-t,3)*path.getUStart() + 3*t*pow(1-t,2)*path.getC1U() + 3*pow(t,2)*(1-t)*path.getC2U() + pow(t,3)*path.getUStop();
+						y = pow(1-t,3)*path.getVStart() + 3*t*pow(1-t,2)*path.getC1V() + 3*pow(t,2)*(1-t)*path.getC2V() + pow(t,3)*path.getVStop();
+						SDL_RenderDrawPoint(renderer , (int)x , (int)y) ;
+					}
+					/*Red Line between control Point P0 & P1*/
+					SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+					SDL_RenderDrawLine(renderer , path.getUStart() , path.getVStart() , path.getC1U(), path.getC1V()) ;
+
+
+					/*Red Line between control Point P1 & P2*/
+					SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+					SDL_RenderDrawLine(renderer , path.getC1U(), path.getC1V(), path.getC2U(), path.getC2V()) ;
+
+
+					/*Red Line between control Point P2 & P3*/
+					SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+					SDL_RenderDrawLine(renderer , path.getC2U(), path.getC2V() , path.getUStop() , path.getVStop()) ;
+				}
+
+				if (SDL_PollEvent(&event)) {
+					/* if window cross button clicked then quit from window */
+					if (event.type == SDL_QUIT) {
+						done = SDL_TRUE;
+					}
+				}
+
+				/*show the window*/
+				SDL_RenderPresent(renderer);
+
+			}
 		}
-
+			/*Destroy the renderer and window*/
+			if (renderer) {
+				SDL_DestroyRenderer(renderer);
+			}
+			if (window) {
+				SDL_DestroyWindow(window);
+			}
 	}
 
-
-
+	/*clean up SDL*/
+	SDL_Quit();
 }
 
 
 
 int main(){
 
-	//The window we'll be rendering to
-	SDL_Window* window = NULL;
-batatat
-	//The surface contained by the window
-	SDL_Surface* screenSurface = NULL;
+
 
 	string adr = "";
 	list<Path> trajectory;
-	 window = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+
 	while(1){
 		if(state==0){
 
