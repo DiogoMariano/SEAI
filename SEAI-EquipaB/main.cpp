@@ -19,9 +19,13 @@
 #include <fstream>
 #include <math.h>
 #include <SDL2/SDL.h>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
 
 
+using namespace boost::numeric::ublas;
 using namespace std;
+
 
 //The window we'll be rendering to
 	SDL_Window* window = NULL;
@@ -39,6 +43,8 @@ int state = 0, sub_state=0;
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
 
+const double KY = 0.025956521739130;
+const double KX = 0.012633888048411;
 
 /*Função
  *
@@ -78,6 +84,34 @@ bool info_file(string adr){
 	}
 
 	return resp;
+
+}
+
+double ReferencialSwap(matrix<double> init_frame, char coordinate){
+
+	matrix<double> R(3,3);
+	R(0,0) = -1;
+	R(0,1) = 0;
+	R(0,2) = 0;
+	R(1,0) = 0;
+	R(1,1) = -1;
+	R(1,2) = 0;
+	R(2,0) = 0;
+	R(2,1) = 0;
+	R(2,2) = 1;
+
+	matrix<double> result(3,1);
+
+	result = prod(R, init_frame);
+
+	if(coordinate == 'u'){
+		//cout<<"entro aqui?"<<endl;
+		return result(0,0);
+	}
+	else{
+		//cout<<"entro aqui2?"<<endl;
+		return result(1,0);
+	}
 
 }
 
@@ -202,7 +236,8 @@ class Path{
 void writelist(list<Path> trajectory){
 	for(Path & path : trajectory){
 			cout<<path.getUStart()<<endl;
-			cout<<path.getC1U()<<endl;
+			cout<<path.getVStart()<<endl;
+			cout<<'\n'<<endl;
 		}
 
 }
@@ -210,11 +245,13 @@ void writelist(list<Path> trajectory){
 void render_xml(list<Path> trajectory){
 
 	double t = 0.0, x = 0.0, y = 0.0;
+	writelist(trajectory);
 
 	if(SDL_Init(SDL_INIT_EVERYTHING) == 0){
 		/*Initialization of SDL*/
 		if(SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer) == 0){
 			SDL_bool done = SDL_FALSE;
+			writelist(trajectory);
 
 			while(!done){
 				SDL_Event event;
@@ -273,19 +310,22 @@ void render_xml(list<Path> trajectory){
 }
 
 
-void read_xml(string adr){
+void read_xml(string adr, list<Path> &trajectory){
 
 		CMarkup xml;
 
 		list<Node_xml> Nodes;
 		list<Link_xml> Links;
 
-		list<Path> trajectory;
+		//list<Path> trajectory;
 
 		xml.Load(adr);
 
-		double u=0, v=0, angle=0, c1_u = 0, c1_v = 0, c2_u = 0, c2_v = 0 ;
+		double u=0, v=0, angle=0, c1_u = 0, c1_v = 0, c2_u = 0, c2_v = 0;
 		string name = "", str_aux = "", id = "", n_start = "", n_stop = "";
+
+		matrix<double> init_frame(3,1);
+
 
 		xml.ResetPos(); //Reposicionamento
 		//xml.FindElem("Path");
@@ -304,17 +344,19 @@ void read_xml(string adr){
 
 					str_aux = xml.GetAttrib("u"); //tirar a coordenada u
 					u = stod(str_aux);
+					init_frame(0,0) = u;
 					//cout<<u<<endl;
 
 					str_aux = xml.GetAttrib("v"); //tirar a coordenada v
 					v = stod(str_aux);
+					init_frame(1,0) = v;
 					//cout<<v<<endl;
 
 					str_aux = xml.GetAttrib("angle"); //tirar a coordenada u
 					angle = stod(str_aux);
 					//cout<<angle<<endl;
 
-					Node_xml Node_xml(id, u, v, angle);
+					Node_xml Node_xml(id, ReferencialSwap(init_frame, 'u'), ReferencialSwap(init_frame, 'v'), angle);
 					Nodes.push_back(Node_xml);
 				}
 			xml.OutOfElem(); //exist Node_xml department
@@ -331,19 +373,29 @@ void read_xml(string adr){
 
 					str_aux = xml.GetAttrib("c1_u");
 					c1_u = stod(str_aux);
+					init_frame(0,0) = u;
 					//cout<<c1_u<<endl;
 
 					str_aux = xml.GetAttrib("c1_v");
 					c1_v = stod(str_aux);
+					init_frame(1,0) = v;
 					//cout<<c1_v<<endl;
+
+					c1_u = ReferencialSwap(init_frame, 'u');
+					c1_v = ReferencialSwap(init_frame, 'v');
 
 					str_aux = xml.GetAttrib("c2_u");
 					c2_u = stod(str_aux);
+					init_frame(0,0) = u;
 					//cout<<c2_u<<endl;
 
 					str_aux = xml.GetAttrib("c2_v");
 					c2_v = stod(str_aux);
+					init_frame(1,0) = v;
 					//cout<<c2_v<<endl;
+
+					c2_u = ReferencialSwap(init_frame, 'u');
+					c2_v = ReferencialSwap(init_frame, 'v');
 
 					Link_xml Link_xml(n_start, n_stop, c1_u, c1_v, c2_u, c2_v);
 					Links.push_back(Link_xml);
@@ -367,7 +419,9 @@ void read_xml(string adr){
 		      }
 
 
-		render_xml(trajectory);
+		//render_xml(trajectory);
+		//return trajectory;
+
 }
 
 
@@ -378,10 +432,13 @@ int main(){
 
 
 	string adr = "";
+	list<Path> trajectory;
+
 
 	while(1){
 		if(state==0){
 
+			//writelist(trajectory);
 			adr.clear();
 			cout << "------XML parser interface------" << endl;
 			cout << "1 -> Read" << endl;
@@ -393,7 +450,8 @@ int main(){
 
 			adr = get_name(); //Get the address of the file
 			if(info_file(adr)){
-				read_xml(adr);
+				read_xml(adr, trajectory);
+				writelist(trajectory);
 				state = 0;
 			}
 			else{
@@ -404,14 +462,10 @@ int main(){
 
 		else if(state == 2){
 
-			/*if(trajectory.size()!=0){
+				writelist(trajectory);
 				render_xml(trajectory);
 				writelist(trajectory);
 				state = 0;
-			}
-			else{
-				state = 0;
-			}*/
 		}
 
 		else if(state == 3){
