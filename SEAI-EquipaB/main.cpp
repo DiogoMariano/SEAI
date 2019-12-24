@@ -21,8 +21,10 @@
 #include <SDL2/SDL.h>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
+#include <boost/math/constants/constants.hpp>
 
-
+using boost::multiprecision::cpp_dec_float_50;
 using namespace boost::numeric::ublas;
 using namespace std;
 
@@ -43,8 +45,11 @@ int state = 0, sub_state=0;
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
 
-const double KY = 0.025956521739130;
-const double KX = 0.012633888048411;
+const double Init_OrigX = 561.699000886475;
+const double Init_OrigY = 335.436643180684;
+
+const double RX = 0.03721763077543844890923335868867;
+const double RY = 0.037494504574287688152908912010387;
 
 /*Função
  *
@@ -90,15 +95,15 @@ bool info_file(string adr){
 double ReferencialSwap(matrix<double> init_frame, char coordinate){
 
 	matrix<double> R(3,3);
-	R(0,0) = -1;
-	R(0,1) = 0;
+	R(0,0) = 0;
+	R(0,1) = -1;
 	R(0,2) = 0;
-	R(1,0) = 0;
-	R(1,1) = -1;
+	R(1,0) = -1;
+	R(1,1) = 0;
 	R(1,2) = 0;
 	R(2,0) = 0;
 	R(2,1) = 0;
-	R(2,2) = 1;
+	R(2,2) = -1;
 
 	matrix<double> result(3,1);
 
@@ -106,11 +111,11 @@ double ReferencialSwap(matrix<double> init_frame, char coordinate){
 
 	if(coordinate == 'u'){
 		//cout<<"entro aqui?"<<endl;
-		return result(0,0);
+		return result(0,0) * RX;
 	}
 	else{
 		//cout<<"entro aqui2?"<<endl;
-		return result(1,0);
+		return result(1,0) * RY;
 	}
 
 }
@@ -344,12 +349,12 @@ void read_xml(string adr, list<Path> &trajectory){
 
 					str_aux = xml.GetAttrib("u"); //tirar a coordenada u
 					u = stod(str_aux);
-					init_frame(0,0) = u;
+					init_frame(0,0) = u - Init_OrigX;
 					//cout<<u<<endl;
 
 					str_aux = xml.GetAttrib("v"); //tirar a coordenada v
 					v = stod(str_aux);
-					init_frame(1,0) = v;
+					init_frame(1,0) = v - Init_OrigY;
 					//cout<<v<<endl;
 
 					str_aux = xml.GetAttrib("angle"); //tirar a coordenada u
@@ -373,12 +378,12 @@ void read_xml(string adr, list<Path> &trajectory){
 
 					str_aux = xml.GetAttrib("c1_u");
 					c1_u = stod(str_aux);
-					init_frame(0,0) = u;
+					init_frame(0,0) = u - Init_OrigX;
 					//cout<<c1_u<<endl;
 
 					str_aux = xml.GetAttrib("c1_v");
 					c1_v = stod(str_aux);
-					init_frame(1,0) = v;
+					init_frame(1,0) = v - Init_OrigY;
 					//cout<<c1_v<<endl;
 
 					c1_u = ReferencialSwap(init_frame, 'u');
@@ -386,12 +391,12 @@ void read_xml(string adr, list<Path> &trajectory){
 
 					str_aux = xml.GetAttrib("c2_u");
 					c2_u = stod(str_aux);
-					init_frame(0,0) = u;
+					init_frame(0,0) = u - Init_OrigX;
 					//cout<<c2_u<<endl;
 
 					str_aux = xml.GetAttrib("c2_v");
 					c2_v = stod(str_aux);
-					init_frame(1,0) = v;
+					init_frame(1,0) = v - Init_OrigY;
 					//cout<<c2_v<<endl;
 
 					c2_u = ReferencialSwap(init_frame, 'u');
