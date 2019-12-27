@@ -207,12 +207,31 @@ class Path: public Node_xml, public Link_xml{
 
 };
 
+class Ponto{
 
-void funcValuesSimtow(list<Path> *trajectory){
+	private:
+		double x, y;
+	public:
+		Ponto(double x, double y){
+			this->x = x;
+			this->y = y;
+		}
+
+		double getX(){
+			return x;
+		}
+
+		double getY(){
+			return y;
+		}
+};
+
+
+void funcValuesSimtow(list<Path> *trajectory, list<Ponto> *trajectoryXY){
 
 	fstream x_coordinate, y_coordinate;
-	x_coordinate.open("X.txt", ios::out);
-	y_coordinate.open("Y.txt", ios::out);
+	x_coordinate.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/X.txt", ios::out);
+	y_coordinate.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/Y.txt", ios::out);
 
 	double x=0.0, y=0.0, t=0.0;
 
@@ -251,6 +270,9 @@ void funcValuesSimtow(list<Path> *trajectory){
 			//x_coordinate << result(0,0) * RX ;
 			//y_coordinate << result(1,0) * RY ;
 
+			Ponto ponto(result(0,0) * RX, result(1,0) * RY);
+			trajectoryXY->push_back(ponto);
+
 			x_coordinate << result(0,0) * RX << " ";
 			y_coordinate << result(1,0) * RY << " ";
 
@@ -267,10 +289,10 @@ void funcValuesSimtow(list<Path> *trajectory){
 
 
 
-void writelist(list<Path> trajectory){
-	for(Path & path : trajectory){
-			cout<<path.start.Getu()<<endl;
-			cout<<path.start.Getv()<<endl;
+void writelist(list<Ponto> trajectory){
+	for(Ponto & ponto : trajectory){
+			cout<<ponto.getX()<<endl;
+			cout<<ponto.getY()<<endl;
 			cout<<'\n'<<endl;
 		}
 
@@ -459,6 +481,7 @@ int main(){
 
 	string adr = "";
 	list<Path> trajectory;
+	list<Ponto> trajectoryXY;
 
 
 	while(1){
@@ -479,7 +502,7 @@ int main(){
 			adr = get_name(); //Get the address of the file
 			if(info_file(adr)){
 				read_xml(adr, &trajectory);
-				writelist(trajectory);
+				//writelist(trajectory);
 				state = 0;
 			}
 			else{
@@ -506,8 +529,8 @@ int main(){
 
 		else if(state == 4){
 			if(trajectory.size()!=0){
-				funcValuesSimtow(&trajectory);
-				writelist(trajectory);
+				funcValuesSimtow(&trajectory, &trajectoryXY);
+				writelist(trajectoryXY);
 				state = 0;
 			}
 			else
