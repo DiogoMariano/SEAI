@@ -23,6 +23,11 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/multiprecision/cpp_dec_float.hpp>
 #include <boost/math/constants/constants.hpp>
+#include <fstream>
+#include <bits/stdc++.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 using boost::multiprecision::cpp_dec_float_50;
 using namespace boost::numeric::ublas;
@@ -38,6 +43,7 @@ using namespace std;
 	SDL_Renderer* renderer = NULL;
 
 static string ADR_XML =  "/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/XML_SCRIPTS/";//Endereço fixo dos cripts de xml
+const char *path = "/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas";
 
 int state = 0, sub_state=0;
 
@@ -81,6 +87,9 @@ bool info_file(string adr){
 		cout << "O ficheiro existe. Deseja continuar?" << '\n' << endl;
 		cout << "não -> 0" << '\n' << "sim -> 1" << endl;
 		cin >> resp;
+
+
+
 		return resp;
 	}
 	else{
@@ -92,33 +101,7 @@ bool info_file(string adr){
 
 }
 
-double ReferencialSwap(matrix<double> init_frame, char coordinate){
 
-	matrix<double> R(3,3);
-	R(0,0) = 0;
-	R(0,1) = -1;
-	R(0,2) = 0;
-	R(1,0) = -1;
-	R(1,1) = 0;
-	R(1,2) = 0;
-	R(2,0) = 0;
-	R(2,1) = 0;
-	R(2,2) = -1;
-
-	matrix<double> result(3,1);
-
-	result = prod(R, init_frame);
-
-	if(coordinate == 'u'){
-		//cout<<"entro aqui?"<<endl;
-		return result(0,0) * RX;
-	}
-	else{
-		//cout<<"entro aqui2?"<<endl;
-		return result(1,0) * RY;
-	}
-
-}
 
 /*Class de Node_xml importante para a leitura do trajeto */
 class Node_xml{
@@ -127,12 +110,16 @@ class Node_xml{
 		double u, v, angle; //coordenadas do Node_xml e o angulo
 
 	public:
+		Node_xml(){
+
+		}
 		Node_xml(string id, double u, double v, double angle){
 			this->id=id;
 			this->u=u;
 			this->v=v;
 			this->angle=angle;
 		}
+
 
 		string Getid(){
 			return this->id;
@@ -146,6 +133,14 @@ class Node_xml{
 		double Getangle(){
 			return this->angle;
 		}
+
+		Node_xml operator =(Node_xml &node){
+			this->id = node.id;
+			this->u = node.u;
+			this->v = node.v;
+			this->angle = node.angle;
+			return *this;
+		}
 };
 
 class Link_xml{
@@ -155,6 +150,9 @@ class Link_xml{
 		double c2_u, c2_v;
 
 	public:
+		Link_xml(){
+
+		}
 		Link_xml(string n_start, string n_stop, double c1_u, double c1_v, double c2_u, double c2_v){
 			this->n_start=n_start;
 			this->n_stop=n_stop;
@@ -182,84 +180,116 @@ class Link_xml{
 		double getC2V(){
 			return this->c2_v;
 		}
+
+		Link_xml operator =(Link_xml &link){
+			this->n_start = link.n_start;
+			this->n_stop = link.n_stop;
+			this->c1_u = link.c1_u;
+			this->c1_v = link.c1_v;
+			this->c2_u = link.c2_u;
+			this->c2_v = link.c2_v;
+			return *this;
+		}
 };
 
-class Path{
-	private:
-		Node_xml *start, *stop;
-		Link_xml *link_of_nodes;
+class Path: public Node_xml, public Link_xml{
 
 	public:
-		Path(Node_xml *start, Node_xml *stop, Link_xml *link_of_nodes){
+		Node_xml start, stop;
+		Link_xml link_of_nodes;
+
+
+		Path(Node_xml start, Node_xml stop, Link_xml link_of_nodes){
 			this->start = start;
 			this->stop = stop;
 			this->link_of_nodes = link_of_nodes;
 		}
 
-		double getUStart(){
-			return this->start->Getu();
-		}
-
-		double getVStart(){
-			return this->start->Getv();
-		}
-
-		double getAngStart(){
-			return this->start->Getangle();
-		}
-
-		double getUStop(){
-			return this->stop->Getu();
-		}
-
-		double getVStop(){
-			return this->stop->Getv();
-		}
-
-		double getAngStop(){
-			return this->stop->Getangle();
-		}
-
-		double getC1U(){
-			return this->link_of_nodes->getC1U();
-		}
-
-		double getC1V(){
-			return this->link_of_nodes->getC1V();
-		}
-
-		double getC2U(){
-			return this->link_of_nodes->getC2U();
-		}
-
-		double getC2V(){
-			return this->link_of_nodes->getC2V();
-		}
-
 };
+
+
+void funcValuesSimtow(list<Path> *trajectory){
+
+	fstream x_coordinate, y_coordinate;
+	x_coordinate.open("X.txt", ios::out);
+	y_coordinate.open("Y.txt", ios::out);
+
+	double x=0.0, y=0.0, t=0.0;
+
+	matrix<double> Init_frame(3,1);
+	Init_frame(2,0) = 0;
+
+	matrix<double> R(3,3);
+			R(0,0) = 0;
+			R(0,1) = -1;
+			R(0,2) = 0;
+			R(1,0) = -1;
+			R(1,1) = 0;
+			R(1,2) = 0;
+			R(2,0) = 0;
+			R(2,1) = 0;
+			R(2,2) = -1;
+
+
+	matrix<double> result(3,1);
+
+	for(Path & path : *trajectory){
+
+		x_coordinate << "[ ";
+		y_coordinate << "[ ";
+
+		for(t = 0.0; t <= 1.0; t += 0.01) {
+
+			x = pow(1-t,3)*path.start.Getu()+ 3*t*pow(1-t,2)*path.link_of_nodes.getC1U() + 3*pow(t,2)*(1-t)*path.link_of_nodes.getC2U() + pow(t,3)*path.stop.Getu();
+			y = pow(1-t,3)*path.start.Getv() + 3*t*pow(1-t,2)*path.link_of_nodes.getC1V() + 3*pow(t,2)*(1-t)*path.link_of_nodes.getC2V() + pow(t,3)*path.stop.Getv();
+
+			Init_frame(0,0) = x - Init_OrigX;
+			Init_frame(1,0) = y - Init_OrigY;
+
+			result = prod(R, Init_frame);
+
+			//x_coordinate << result(0,0) * RX ;
+			//y_coordinate << result(1,0) * RY ;
+
+			x_coordinate << result(0,0) * RX << " ";
+			y_coordinate << result(1,0) * RY << " ";
+
+		}
+
+		x_coordinate << "]" << endl;
+		y_coordinate << "]" << endl;
+	}
+
+	x_coordinate.close();
+	y_coordinate.close();
+}
+
+
+
 
 void writelist(list<Path> trajectory){
 	for(Path & path : trajectory){
-			cout<<path.getUStart()<<endl;
-			cout<<path.getVStart()<<endl;
+			cout<<path.start.Getu()<<endl;
+			cout<<path.start.Getv()<<endl;
 			cout<<'\n'<<endl;
 		}
 
 }
 
-void render_xml(list<Path> trajectory){
+void render_xml(list<Path> *trajectory){
 
 	double t = 0.0, x = 0.0, y = 0.0;
-	writelist(trajectory);
 
 	if(SDL_Init(SDL_INIT_EVERYTHING) == 0){
 		/*Initialization of SDL*/
 		if(SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &window, &renderer) == 0){
 			SDL_bool done = SDL_FALSE;
-			writelist(trajectory);
 
 			while(!done){
 				SDL_Event event;
+
+				list<Path> aux = *trajectory;
+
 
 				/*set background color to black*/
 				SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
@@ -268,25 +298,16 @@ void render_xml(list<Path> trajectory){
 				/*set draw color to white*/
 				SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 
-				for(Path & path : trajectory){
+				for(Path & path : *trajectory){
 
 					for(t = 0.0; t <= 1.0; t += 0.0001) {
+						x = pow(1-t,3)*path.start.Getu()+ 3*t*pow(1-t,2)*path.link_of_nodes.getC1U() + 3*pow(t,2)*(1-t)*path.link_of_nodes.getC2U() + pow(t,3)*path.stop.Getu();
+						y = pow(1-t,3)*path.start.Getv() + 3*t*pow(1-t,2)*path.link_of_nodes.getC1V() + 3*pow(t,2)*(1-t)*path.link_of_nodes.getC2V() + pow(t,3)*path.stop.Getv();
 
-						x = pow(1-t,3)*path.getUStart() + 3*t*pow(1-t,2)*path.getC1U() + 3*pow(t,2)*(1-t)*path.getC2U() + pow(t,3)*path.getUStop();
-						y = pow(1-t,3)*path.getVStart() + 3*t*pow(1-t,2)*path.getC1V() + 3*pow(t,2)*(1-t)*path.getC2V() + pow(t,3)*path.getVStop();
 						SDL_RenderDrawPoint(renderer , (int)x , (int)y) ;
+
 					}
-					/*Red Line between control Point P0 & P1*/
-					//SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-					//SDL_RenderDrawLine(renderer , path.getUStart() , path.getVStart() , path.getC1U(), path.getC1V()) ;
 
-
-					/*Line between control Point P1 & P2*/
-					//SDL_RenderDrawLine(renderer , path.getC1U(), path.getC1V(), path.getC2U(), path.getC2V()) ;
-
-
-					/*Line between control Point P2 & P3*/
-					//SDL_RenderDrawLine(renderer , path.getC2U(), path.getC2V() , path.getUStop() , path.getVStop()) ;
 				}
 
 				if (SDL_PollEvent(&event)) {
@@ -315,7 +336,7 @@ void render_xml(list<Path> trajectory){
 }
 
 
-void read_xml(string adr, list<Path> &trajectory){
+void read_xml(string adr, list<Path> *trajectory){
 
 		CMarkup xml;
 
@@ -349,19 +370,19 @@ void read_xml(string adr, list<Path> &trajectory){
 
 					str_aux = xml.GetAttrib("u"); //tirar a coordenada u
 					u = stod(str_aux);
-					init_frame(0,0) = u - Init_OrigX;
+					//init_frame(0,0) = u - Init_OrigX;
 					//cout<<u<<endl;
 
 					str_aux = xml.GetAttrib("v"); //tirar a coordenada v
 					v = stod(str_aux);
-					init_frame(1,0) = v - Init_OrigY;
+					//init_frame(1,0) = v - Init_OrigY;
 					//cout<<v<<endl;
 
 					str_aux = xml.GetAttrib("angle"); //tirar a coordenada u
 					angle = stod(str_aux);
 					//cout<<angle<<endl;
 
-					Node_xml Node_xml(id, ReferencialSwap(init_frame, 'u'), ReferencialSwap(init_frame, 'v'), angle);
+					Node_xml Node_xml(id, u, v, angle);
 					Nodes.push_back(Node_xml);
 				}
 			xml.OutOfElem(); //exist Node_xml department
@@ -378,29 +399,29 @@ void read_xml(string adr, list<Path> &trajectory){
 
 					str_aux = xml.GetAttrib("c1_u");
 					c1_u = stod(str_aux);
-					init_frame(0,0) = u - Init_OrigX;
+					//init_frame(0,0) = u - Init_OrigX;
 					//cout<<c1_u<<endl;
 
 					str_aux = xml.GetAttrib("c1_v");
 					c1_v = stod(str_aux);
-					init_frame(1,0) = v - Init_OrigY;
+					//init_frame(1,0) = v - Init_OrigY;
 					//cout<<c1_v<<endl;
 
-					c1_u = ReferencialSwap(init_frame, 'u');
-					c1_v = ReferencialSwap(init_frame, 'v');
+					//c1_u = ReferencialSwap(init_frame, 'u');
+					//c1_v = ReferencialSwap(init_frame, 'v');
 
 					str_aux = xml.GetAttrib("c2_u");
 					c2_u = stod(str_aux);
-					init_frame(0,0) = u - Init_OrigX;
+					//init_frame(0,0) = u - Init_OrigX;
 					//cout<<c2_u<<endl;
 
 					str_aux = xml.GetAttrib("c2_v");
 					c2_v = stod(str_aux);
-					init_frame(1,0) = v - Init_OrigY;
+					//init_frame(1,0) = v - Init_OrigY;
 					//cout<<c2_v<<endl;
 
-					c2_u = ReferencialSwap(init_frame, 'u');
-					c2_v = ReferencialSwap(init_frame, 'v');
+					//c2_u = ReferencialSwap(init_frame, 'u');
+					//c2_v = ReferencialSwap(init_frame, 'v');
 
 					Link_xml Link_xml(n_start, n_stop, c1_u, c1_v, c2_u, c2_v);
 					Links.push_back(Link_xml);
@@ -415,8 +436,8 @@ void read_xml(string adr, list<Path> &trajectory){
 		        	 if(!((link.GetStart()).compare(node1.Getid()))){
 		        		 for( Node_xml & node2: Nodes){
 		        			 if(!(link.GetStop().compare(node2.Getid()))){
-		        				 Path path(&node1, &node2, &link);
-		        				 trajectory.push_back(path);
+		        				 Path path(node1, node2, link);
+		        				 trajectory->push_back(path);
 		        			 }
 		        		 }
 		        	 }
@@ -424,7 +445,7 @@ void read_xml(string adr, list<Path> &trajectory){
 		      }
 
 
-		//render_xml(trajectory);
+		//render_xml(*trajectory);
 		//return trajectory;
 
 }
@@ -448,14 +469,16 @@ int main(){
 			cout << "------XML parser interface------" << endl;
 			cout << "1 -> Read" << endl;
 			cout << "2 -> Render" << endl;
-			cout << "3 -> QUIT" << endl;
+			cout << "3 -> Inicializar" << endl;
+			cout << "4 -> SimTwo Values" << endl;
+			cout << "5 -> Quit" << endl;
 			cin >> state;
 		}
 		else if(state==1){
 
 			adr = get_name(); //Get the address of the file
 			if(info_file(adr)){
-				read_xml(adr, trajectory);
+				read_xml(adr, &trajectory);
 				writelist(trajectory);
 				state = 0;
 			}
@@ -466,19 +489,35 @@ int main(){
 		}
 
 		else if(state == 2){
-
-				writelist(trajectory);
-				render_xml(trajectory);
-				writelist(trajectory);
+			if(trajectory.size()!=0){
+				render_xml(&trajectory);
 				state = 0;
+			}
+			else{
+				state = 0;
+			}
 		}
 
 		else if(state == 3){
+			trajectory.clear();
+			adr.clear();
+			state = 0;
+		}
+
+		else if(state == 4){
+			if(trajectory.size()!=0){
+				funcValuesSimtow(&trajectory);
+				writelist(trajectory);
+				state = 0;
+			}
+			else
+				state = 0;
+		}
+
+		else if(state == 5){
 			state = 0;
 			break;
 		}
-
-
 
 	}
 

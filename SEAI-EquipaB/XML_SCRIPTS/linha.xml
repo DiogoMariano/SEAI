@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph name="">
+  <nodes>
+    <node id="00000036" name="" c_level="1" u="0" v="0" angle="-0.795013251697151"/>
+    <node id="00000037" name="" c_level="1" u="100" v="100" angle="-0.795014927575937"/>
+  </nodes>
+  <links>
+    <link id="00000038" name="" node_start="00000036" node_stop="00000037" c1_u="34.33333206" c1_v="35" c2_u="69.50448608" c2_v="68.91223145"/>
+  </links>
+</graph>
