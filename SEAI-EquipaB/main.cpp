@@ -252,10 +252,6 @@ class Ponto{
 
 void funcValuesSimtow(list<Path> *trajectory, list<Ponto> *trajectoryXY){
 
-	fstream x_coordinate, y_coordinate;
-	x_coordinate.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/X.txt", ios::out);
-	y_coordinate.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/Y.txt", ios::out);
-
 	double x=0.0, y=0.0, t=0.0;
 
 	matrix<double> Init_frame(3,1);
@@ -277,9 +273,6 @@ void funcValuesSimtow(list<Path> *trajectory, list<Ponto> *trajectoryXY){
 
 	for(Path & path : *trajectory){
 
-		x_coordinate << "[ ";
-		y_coordinate << "[ ";
-
 		for(t = 0.0; t <= 1.0; t += 0.01) {
 
 			x = pow(1-t,3)*path.getUStart()+ 3*t*pow(1-t,2)*path.getC1U() + 3*pow(t,2)*(1-t)*path.getC2U() + pow(t,3)*path.getUStop();
@@ -296,20 +289,26 @@ void funcValuesSimtow(list<Path> *trajectory, list<Ponto> *trajectoryXY){
 			Ponto ponto(result(0,0) * RX, result(1,0) * RY);
 			trajectoryXY->push_back(ponto);
 
-			x_coordinate << result(0,0) * RX << " ";
-			y_coordinate << result(1,0) * RY << " ";
+			//x_coordinate << result(0,0) * RX << " ";
+			//y_coordinate << result(1,0) * RY << " ";
 
 		}
-
-		x_coordinate << "]" << endl;
-		y_coordinate << "]" << endl;
 	}
 
-	x_coordinate.close();
-	y_coordinate.close();
+	fstream coordinates;
+	coordinates.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/coordinates.txt", ios::out);
+
+	coordinates << "[";
+
+	for(Ponto & ponto : *trajectoryXY){
+		coordinates << ponto.getX() << "," << ponto.getY() << '\n';
+	}
+
+	coordinates << "]";
+
+	coordinates.close();
+
 }
-
-
 
 
 void writelist(list<Ponto> trajectory){
@@ -476,8 +475,6 @@ void read_xml(string adr, list<Path> *trajectory){
 
 int main(){
 
-
-
 	string adr = "";
 	list<Path> trajectory;
 	list<Ponto> trajectoryXY;
@@ -522,6 +519,7 @@ int main(){
 
 		else if(state == 3){
 			trajectory.clear();
+			trajectoryXY.clear();
 			adr.clear();
 			state = 0;
 		}
