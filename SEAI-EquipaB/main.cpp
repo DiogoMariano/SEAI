@@ -273,7 +273,7 @@ void funcValuesSimtow(list<Path> *trajectory, list<Ponto> *trajectoryXY){
 
 	for(Path & path : *trajectory){
 
-		for(t = 0.0; t <= 1.0; t += 0.01) {
+		for(t = 0.0; t <= 1.0; t += 0.1) {
 
 			x = pow(1-t,3)*path.getUStart()+ 3*t*pow(1-t,2)*path.getC1U() + 3*pow(t,2)*(1-t)*path.getC2U() + pow(t,3)*path.getUStop();
 			y = pow(1-t,3)*path.getVStart() + 3*t*pow(1-t,2)*path.getC1V() + 3*pow(t,2)*(1-t)*path.getC2V() + pow(t,3)*path.getVStop();
@@ -295,18 +295,20 @@ void funcValuesSimtow(list<Path> *trajectory, list<Ponto> *trajectoryXY){
 		}
 	}
 
-	fstream coordinates;
-	coordinates.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/coordinates.txt", ios::out);
 
-	coordinates << "[";
+	fstream x_coordinates, y_coordinates;
+
+	x_coordinates.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/x_coordinates.txt", ios::out);
+
+	y_coordinates.open("/home/mariano/Documents/SEAI/SEAI/SEAI-EquipaB/Coordenadas/y_coordinates.txt", ios::out);
 
 	for(Ponto & ponto : *trajectoryXY){
-		coordinates << ponto.getX() << "," << ponto.getY() << '\n';
+		x_coordinates << ponto.getX() << '\n';
+		y_coordinates << ponto.getY() << '\n';
 	}
 
-	coordinates << "]";
-
-	coordinates.close();
+	x_coordinates.close();
+	y_coordinates.close();
 
 }
 
